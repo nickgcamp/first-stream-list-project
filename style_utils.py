@@ -331,13 +331,14 @@ def get_main_styles():
             user-select: none;
             min-height: 44px;
             touch-action: manipulation;
+            cursor: pointer;
         }}
 
-        /* Active state for touch feedback */
+        /* Active state for touch feedback - use opacity instead of transform for iOS compatibility */
         .stButton > button:active {{
             background-color: {COLORS['nav_button_active']};
-            transform: scale(0.96);
-            transition: transform 0.1s ease, background-color 0.1s ease;
+            opacity: 0.85;
+            transition: opacity 0.1s ease, background-color 0.1s ease;
         }}
 
         /* Ensure minimum touch target size */
@@ -548,14 +549,25 @@ def get_main_styles():
            ============================================ */
         /* Streamlit navigation columns - prevent stacking on mobile */
         @media (max-width: 768px) {{
-            /* Target only the first horizontal block (nav bar) not game grids */
-            .main .block-container > [data-testid="stVerticalBlock"] > [data-testid="stHorizontalBlock"]:first-of-type {{
+            /* Target horizontal blocks containing buttons - use :has() for modern browsers */
+            [data-testid="stHorizontalBlock"]:has(.stButton) {{
                 flex-wrap: nowrap !important;
                 gap: 8px;
             }}
 
-            .main .block-container > [data-testid="stVerticalBlock"] > [data-testid="stHorizontalBlock"]:first-of-type > [data-testid="column"] {{
+            [data-testid="stHorizontalBlock"]:has(.stButton) > [data-testid="column"] {{
                 flex: 1 1 0 !important;
+                min-width: 0 !important;
+                width: auto !important;
+            }}
+
+            /* Fallback for older browsers - target all horizontal blocks more broadly */
+            .main .block-container [data-testid="stHorizontalBlock"] {{
+                flex-wrap: nowrap !important;
+            }}
+
+            .main .block-container [data-testid="stHorizontalBlock"] > [data-testid="column"] {{
+                flex: 1 1 auto !important;
                 min-width: 0 !important;
             }}
         }}

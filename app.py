@@ -123,23 +123,17 @@ def render_navigation_bar():
         unsafe_allow_html=True,
     )
 
-    # Three equal columns for buttons
+    # Three equal columns for buttons - use on_click callbacks for better mobile touch handling
     col1, col2, col3 = st.columns([1, 1, 1])
 
     with col1:
-        if st.button("←", key="prev_day", use_container_width=True):
-            if navigate_date(-1):
-                st.rerun()
+        st.button("←", key="prev_day", use_container_width=True, on_click=lambda: navigate_date(-1))
 
     with col2:
-        if st.button("🔄", key="refresh_nav", use_container_width=True):
-            trigger_refresh()
-            st.rerun()
+        st.button("🔄", key="refresh_nav", use_container_width=True, on_click=trigger_refresh)
 
     with col3:
-        if st.button("→", key="next_day", use_container_width=True):
-            if navigate_date(+1):
-                st.rerun()
+        st.button("→", key="next_day", use_container_width=True, on_click=lambda: navigate_date(+1))
 
     # Date display below nav buttons
     date_str = st.session_state.selected_date.strftime("%A, %B %d, %Y")
