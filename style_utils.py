@@ -544,37 +544,19 @@ def get_main_styles():
         }}
 
         /* ============================================
-           NAVIGATION BUTTONS - ALWAYS HORIZONTAL
+           NAVIGATION BAR - MOBILE FIXES
            ============================================ */
-        /* Keep navigation button rows horizontal on ALL screen sizes */
-        [data-testid="stHorizontalBlock"] {{
-            flex-wrap: nowrap !important;
-            gap: 8px;
-        }}
-
-        /* Make navigation buttons square-ish with equal sizing */
-        .stButton > button {{
-            min-width: 60px;
-            aspect-ratio: 1.2;
-        }}
-
-        /* Mobile adjustments for navigation spacing */
-        @media (max-width: 480px) {{
-            [data-testid="stHorizontalBlock"] {{
-                gap: 6px;
+        /* Streamlit navigation columns - prevent stacking on mobile */
+        @media (max-width: 768px) {{
+            /* Target only the first horizontal block (nav bar) not game grids */
+            .main .block-container > [data-testid="stVerticalBlock"] > [data-testid="stHorizontalBlock"]:first-of-type {{
+                flex-wrap: nowrap !important;
+                gap: 8px;
             }}
 
-            /* Ensure columns don't expand to full width for nav buttons */
-            [data-testid="stHorizontalBlock"] > [data-testid="column"] {{
-                flex: 1 1 auto !important;
-                width: auto !important;
+            .main .block-container > [data-testid="stVerticalBlock"] > [data-testid="stHorizontalBlock"]:first-of-type > [data-testid="column"] {{
+                flex: 1 1 0 !important;
                 min-width: 0 !important;
-            }}
-        }}
-
-        @media (max-width: 375px) {{
-            [data-testid="stHorizontalBlock"] {{
-                gap: 4px;
             }}
         }}
     </style>
