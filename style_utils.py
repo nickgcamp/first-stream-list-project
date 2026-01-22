@@ -193,31 +193,21 @@ def render_scorecard(game_data):
 
     status_class = "final" if status.lower() == "final" else ""
 
-    return f"""
-    <div class="scorecard">
-        <div style="text-align: center;">
-            <span class="game-status {status_class}">{status}</span>
-        </div>
+    # Build HTML as single line to avoid Streamlit markdown parsing issues
+    html = f'<div class="scorecard">'
+    html += f'<div style="text-align: center;"><span class="game-status {status_class}">{status}</span></div>'
+    html += f'<div class="team-row"><div class="team-info">'
+    html += f'<img class="team-logo" src="{away["logo"]}" alt="{away["name"]}">'
+    html += f'<span class="team-name">{away["name"]}</span></div>'
+    html += f'<span class="team-score {away_score_class}">{away["score"]}</span></div>'
+    html += f'<div class="team-divider"></div>'
+    html += f'<div class="team-row"><div class="team-info">'
+    html += f'<img class="team-logo" src="{home["logo"]}" alt="{home["name"]}">'
+    html += f'<span class="team-name">{home["name"]}</span></div>'
+    html += f'<span class="team-score {home_score_class}">{home["score"]}</span></div>'
+    html += f'</div>'
 
-        <div class="team-row">
-            <div class="team-info">
-                <img class="team-logo" src="{away['logo']}" alt="{away['name']}">
-                <span class="team-name">{away['name']}</span>
-            </div>
-            <span class="team-score {away_score_class}">{away['score']}</span>
-        </div>
-
-        <div class="team-divider"></div>
-
-        <div class="team-row">
-            <div class="team-info">
-                <img class="team-logo" src="{home['logo']}" alt="{home['name']}">
-                <span class="team-name">{home['name']}</span>
-            </div>
-            <span class="team-score {home_score_class}">{home['score']}</span>
-        </div>
-    </div>
-    """
+    return html
 
 
 def render_header(date_str):
