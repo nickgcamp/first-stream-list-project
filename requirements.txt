@@ -1,0 +1,3 @@
+streamlit>=1.28.0
+nba_api>=1.4.1
+pytz>=2023.3
