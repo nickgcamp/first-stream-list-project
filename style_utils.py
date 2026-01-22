@@ -308,6 +308,252 @@ def get_main_styles():
             color: {COLORS['carolina_blue']};
             font-weight: 600;
         }}
+
+        /* ============================================
+           TOUCH OPTIMIZATION & iOS SPECIFIC STYLES
+           ============================================ */
+
+        /* Smooth scrolling for iOS */
+        .stApp {{
+            -webkit-overflow-scrolling: touch;
+        }}
+
+        /* Global touch optimization for all buttons */
+        .stButton > button {{
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            min-height: 44px;
+            touch-action: manipulation;
+        }}
+
+        /* Active state for touch feedback */
+        .stButton > button:active {{
+            transform: scale(0.96);
+            opacity: 0.85;
+            transition: transform 0.1s ease, opacity 0.1s ease;
+        }}
+
+        /* Ensure minimum touch target size */
+        [data-testid="collapsedControl"],
+        [data-testid="stSidebarCollapseButton"] button {{
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+            touch-action: manipulation;
+        }}
+
+        /* ============================================
+           TABLET RESPONSIVE STYLES (max-width: 768px)
+           ============================================ */
+        @media (max-width: 768px) {{
+            /* Header adjustments */
+            .dashboard-header {{
+                padding: 15px 0 8px 0;
+            }}
+
+            .dashboard-header h1 {{
+                font-size: 1.8rem;
+            }}
+
+            /* Scorecard adjustments */
+            .scorecard {{
+                margin: 8px 5px;
+                padding: 15px;
+                border-radius: 12px;
+            }}
+
+            /* Team info adjustments */
+            .team-name {{
+                font-size: 1rem;
+            }}
+
+            .team-logo {{
+                width: 40px;
+                height: 40px;
+            }}
+
+            .team-score {{
+                font-size: 1.3rem;
+            }}
+
+            /* Team stats grid */
+            .team-stats {{
+                font-size: 0.65rem;
+                gap: 4px 10px;
+                padding: 6px 8px;
+            }}
+
+            /* Navigation buttons larger on tablet */
+            .nav-arrow {{
+                width: 50px !important;
+                height: 50px !important;
+                font-size: 1.4rem;
+            }}
+
+            /* Button minimum heights */
+            .stButton > button {{
+                min-height: 48px;
+                font-size: 0.9rem;
+            }}
+        }}
+
+        /* ============================================
+           MOBILE RESPONSIVE STYLES (max-width: 480px)
+           ============================================ */
+        @media (max-width: 480px) {{
+            /* Ensure minimum font size to prevent iOS zoom */
+            html, body {{
+                font-size: 16px;
+            }}
+
+            /* Header smaller on mobile */
+            .dashboard-header {{
+                padding: 10px 0 5px 0;
+                margin-bottom: 5px;
+            }}
+
+            .dashboard-header h1 {{
+                font-size: 1.5rem;
+            }}
+
+            /* Scorecard mobile optimization */
+            .scorecard {{
+                margin: 6px 0;
+                padding: 12px;
+                border-radius: 10px;
+            }}
+
+            .scorecard:hover {{
+                transform: none;
+                box-shadow: none;
+            }}
+
+            /* Team row tighter spacing */
+            .team-row {{
+                padding: 8px 0;
+            }}
+
+            .team-info {{
+                gap: 8px;
+            }}
+
+            .team-name {{
+                font-size: 0.9rem;
+            }}
+
+            .team-logo {{
+                width: 35px;
+                height: 35px;
+            }}
+
+            .team-score {{
+                font-size: 1.2rem;
+            }}
+
+            /* Team stats more compact */
+            .team-stats {{
+                font-size: 0.6rem;
+                gap: 3px 6px;
+                padding: 5px 6px;
+                margin-top: 6px;
+            }}
+
+            /* Game status badge smaller */
+            .game-status {{
+                font-size: 0.65rem;
+                padding: 3px 10px;
+                margin-bottom: 10px;
+            }}
+
+            /* Navigation buttons well-spaced */
+            .stButton > button {{
+                min-height: 50px;
+                padding: 12px 8px;
+                font-size: 1rem;
+            }}
+
+            /* No games message */
+            .no-games {{
+                padding: 40px 15px;
+                font-size: 1rem;
+            }}
+
+            /* Filter header */
+            .filter-header {{
+                font-size: 0.8rem;
+            }}
+
+            /* Team divider */
+            .team-divider {{
+                margin: 3px 0;
+            }}
+        }}
+
+        /* ============================================
+           SMALL MOBILE STYLES (max-width: 375px)
+           iPhone SE, older iPhones
+           ============================================ */
+        @media (max-width: 375px) {{
+            .dashboard-header h1 {{
+                font-size: 1.3rem;
+            }}
+
+            .team-name {{
+                font-size: 0.85rem;
+            }}
+
+            .team-logo {{
+                width: 32px;
+                height: 32px;
+            }}
+
+            .team-score {{
+                font-size: 1.1rem;
+            }}
+
+            .team-stats {{
+                font-size: 0.55rem;
+                gap: 2px 4px;
+            }}
+
+            .scorecard {{
+                padding: 10px;
+            }}
+        }}
+
+        /* ============================================
+           PREVENT HORIZONTAL SCROLLING
+           ============================================ */
+        .main .block-container {{
+            max-width: 100%;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            overflow-x: hidden;
+        }}
+
+        @media (max-width: 480px) {{
+            .main .block-container {{
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }}
+        }}
+
+        /* ============================================
+           STREAMLIT COLUMN ADJUSTMENTS FOR MOBILE
+           ============================================ */
+        @media (max-width: 768px) {{
+            [data-testid="column"] {{
+                width: 100% !important;
+                flex: 1 1 100% !important;
+            }}
+        }}
+
+        /* Navigation bar columns stay inline on mobile but with adjusted spacing */
+        @media (max-width: 480px) {{
+            [data-testid="stHorizontalBlock"] {{
+                gap: 0.3rem;
+            }}
+        }}
     </style>
     """
 

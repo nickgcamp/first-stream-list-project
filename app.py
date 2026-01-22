@@ -91,12 +91,12 @@ def render_sidebar():
         col1, col2 = st.columns(2)
 
         with col1:
-            if st.button("🔄 Refresh", use_container_width=True):
+            if st.button("🔄 Refresh", key="sidebar_refresh", use_container_width=True):
                 trigger_refresh()
                 st.rerun()
 
         with col2:
-            if st.button("📅 Today", use_container_width=True):
+            if st.button("📅 Today", key="sidebar_today", use_container_width=True):
                 reset_to_today()
                 st.rerun()
 
