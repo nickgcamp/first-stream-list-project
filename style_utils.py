@@ -275,19 +275,24 @@ def get_main_styles():
         #MainMenu {{visibility: hidden;}}
         footer {{visibility: hidden;}}
 
-        /* Custom button styling - use Carolina Blue */
+        /* Custom button styling - Navy/Carolina blue mix */
         .stButton > button {{
-            background-color: {COLORS['carolina_blue']};
+            background-color: {COLORS['nav_button']};
             color: white;
             border: none;
             border-radius: 8px;
             padding: 10px 20px;
             font-weight: 600;
             width: 100%;
+            min-height: 50px;
         }}
 
         .stButton > button:hover {{
-            background-color: {COLORS['carolina_blue_light']};
+            background-color: {COLORS['nav_button_hover']};
+        }}
+
+        .stButton > button:active {{
+            background-color: {COLORS['nav_button_active']};
         }}
 
         /* Date input styling */
@@ -330,9 +335,9 @@ def get_main_styles():
 
         /* Active state for touch feedback */
         .stButton > button:active {{
+            background-color: {COLORS['nav_button_active']};
             transform: scale(0.96);
-            opacity: 0.85;
-            transition: transform 0.1s ease, opacity 0.1s ease;
+            transition: transform 0.1s ease, background-color 0.1s ease;
         }}
 
         /* Ensure minimum touch target size */

@@ -115,12 +115,16 @@ def render_sidebar():
 
 def render_navigation_bar():
     """Renders the interactive navigation bar with date arrows and refresh button."""
-    # Get last refresh time
+    # Last updated text on top
     last_updated = get_last_refresh_time()
-    date_str = st.session_state.selected_date.strftime("%A, %B %d, %Y")
+    st.markdown(
+        f'<p style="text-align: center; color: #8E8E93; font-size: 0.85rem; margin-bottom: 10px;">'
+        f'Last updated: {last_updated}</p>',
+        unsafe_allow_html=True,
+    )
 
-    # Create three columns for navigation: prev arrow, center content, next arrow
-    col1, col2, col3, col4, col5 = st.columns([1, 1, 3, 1, 1])
+    # Three equal columns for buttons
+    col1, col2, col3 = st.columns([1, 1, 1])
 
     with col1:
         if st.button("←", key="prev_day", use_container_width=True):
@@ -128,23 +132,17 @@ def render_navigation_bar():
                 st.rerun()
 
     with col2:
-        pass  # Spacer
-
-    with col3:
-        # Center: refresh button with timestamp
-        if st.button(f"🔄 Last updated: {last_updated}", key="refresh_nav", use_container_width=True):
+        if st.button("🔄", key="refresh_nav", use_container_width=True):
             trigger_refresh()
             st.rerun()
 
-    with col4:
-        pass  # Spacer
-
-    with col5:
+    with col3:
         if st.button("→", key="next_day", use_container_width=True):
             if navigate_date(+1):
                 st.rerun()
 
     # Date display below nav buttons
+    date_str = st.session_state.selected_date.strftime("%A, %B %d, %Y")
     st.markdown(
         f'<p style="text-align: center; color: {IOS_COLORS["text_primary"]}; '
         f'font-size: 1.1rem; font-weight: 500; margin: 10px 0 20px 0;">{date_str}</p>',
