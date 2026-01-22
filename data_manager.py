@@ -8,8 +8,9 @@ from datetime import datetime, timedelta
 from constants import NBA_TEAMS
 
 try:
-    from nba_api.live.nba.endpoints import scoreboard
-    from nba_api.stats.endpoints import leaguegamefinder
+    from nba_api.live.nba.endpoints import scoreboard, boxscore
+    from nba_api.stats.endpoints import leaguegamefinder, boxscoretraditionalv2
+    from nba_api.stats.endpoints import scoreboardv2
     NBA_API_AVAILABLE = True
 except ImportError:
     NBA_API_AVAILABLE = False
@@ -136,6 +137,65 @@ def parse_game_status(game_data):
     return game_status_text if game_status_text else "Unknown"
 
 
+def extract_team_stats_from_live(team_data):
+    """
+    Extract team statistics from live API team data.
+
+    Args:
+        team_data: Team dict from live scoreboard API
+
+    Returns:
+        Dict with stats or None if not available
+    """
+    try:
+        statistics = team_data.get("statistics", {})
+        if not statistics:
+            return None
+
+        return {
+            "fg_made": statistics.get("fieldGoalsMade"),
+            "fg_attempted": statistics.get("fieldGoalsAttempted"),
+            "fg3_made": statistics.get("threePointersMade"),
+            "fg3_attempted": statistics.get("threePointersAttempted"),
+            "ft_made": statistics.get("freeThrowsMade"),
+            "ft_attempted": statistics.get("freeThrowsAttempted"),
+            "ast": statistics.get("assists"),
+            "reb": statistics.get("reboundsTotal"),
+            "to": statistics.get("turnovers"),
+        }
+    except Exception:
+        return None
+
+
+def fetch_live_boxscore_stats(game_id):
+    """
+    Fetch detailed box score stats for a live game.
+
+    Args:
+        game_id: The game ID
+
+    Returns:
+        Dict with home and away team stats
+    """
+    if not NBA_API_AVAILABLE:
+        return None, None
+
+    try:
+        box = boxscore.BoxScore(game_id=game_id)
+        box_data = box.get_dict()
+
+        game_data = box_data.get("game", {})
+        home_team = game_data.get("homeTeam", {})
+        away_team = game_data.get("awayTeam", {})
+
+        home_stats = extract_team_stats_from_live(home_team)
+        away_stats = extract_team_stats_from_live(away_team)
+
+        return home_stats, away_stats
+    except Exception:
+        return None, None
+
+
 def fetch_live_games():
     """
     Fetch today's live games from nba_api.
@@ -174,29 +234,48 @@ def fetch_live_games():
             home_score = home_team_data.get("score", 0)
             away_score = away_team_data.get("score", 0)
 
+            game_status_code = game_data.get("gameStatus", 1)
+
             # Handle scores for games that haven't started
-            if game_data.get("gameStatus", 1) == 1:
+            if game_status_code == 1:
                 home_score = 0
                 away_score = 0
 
             # Parse game status
             status = parse_game_status(game_data)
 
+            # Extract stats from the scoreboard data (available for in-progress and finished games)
+            home_stats = extract_team_stats_from_live(home_team_data)
+            away_stats = extract_team_stats_from_live(away_team_data)
+
+            # If stats not in scoreboard, try fetching from boxscore for finished/in-progress games
+            if (home_stats is None or away_stats is None) and game_status_code >= 2:
+                game_id = game_data.get("gameId")
+                if game_id:
+                    box_home, box_away = fetch_live_boxscore_stats(game_id)
+                    if home_stats is None:
+                        home_stats = box_home
+                    if away_stats is None:
+                        away_stats = box_away
+
             game = {
                 "id": game_data.get("gameId", f"{today.isoformat()}-{home_tricode}-{away_tricode}"),
                 "date": today,
                 "status": status,
+                "is_scheduled": game_status_code == 1,
                 "home_team": {
                     "abbrev": home_team_info["abbrev"],
                     "name": home_team_info["name"],
                     "logo": home_team_info["logo"],
                     "score": home_score,
+                    "stats": home_stats,
                 },
                 "away_team": {
                     "abbrev": away_team_info["abbrev"],
                     "name": away_team_info["name"],
                     "logo": away_team_info["logo"],
                     "score": away_score,
+                    "stats": away_stats,
                 },
             }
             games.append(game)
@@ -206,6 +285,49 @@ def fetch_live_games():
     except Exception as e:
         st.error(f"Error fetching NBA data: {str(e)}")
         return []
+
+
+def fetch_historical_boxscore_stats(game_id):
+    """
+    Fetch box score stats for a historical game using stats API.
+
+    Args:
+        game_id: The game ID
+
+    Returns:
+        Dict mapping team_id to stats dict
+    """
+    if not NBA_API_AVAILABLE:
+        return {}
+
+    try:
+        box = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id=game_id)
+        dfs = box.get_data_frames()
+
+        # Team stats are in the second dataframe (index 1)
+        if len(dfs) < 2:
+            return {}
+
+        team_stats_df = dfs[1]
+
+        stats_by_team = {}
+        for _, row in team_stats_df.iterrows():
+            team_id = row.get("TEAM_ID")
+            stats_by_team[team_id] = {
+                "fg_made": row.get("FGM"),
+                "fg_attempted": row.get("FGA"),
+                "fg3_made": row.get("FG3M"),
+                "fg3_attempted": row.get("FG3A"),
+                "ft_made": row.get("FTM"),
+                "ft_attempted": row.get("FTA"),
+                "ast": row.get("AST"),
+                "reb": row.get("REB"),
+                "to": row.get("TO"),
+            }
+
+        return stats_by_team
+    except Exception:
+        return {}
 
 
 def fetch_historical_games(date):
@@ -272,21 +394,33 @@ def fetch_historical_games(date):
             home_score = int(home_row.get("PTS", 0) or 0)
             away_score = int(away_row.get("PTS", 0) or 0)
 
+            # Fetch detailed box score stats
+            boxscore_stats = fetch_historical_boxscore_stats(game_id)
+
+            home_team_id = home_row.get("TEAM_ID")
+            away_team_id = away_row.get("TEAM_ID")
+
+            home_stats = boxscore_stats.get(home_team_id)
+            away_stats = boxscore_stats.get(away_team_id)
+
             game = {
                 "id": game_id,
                 "date": date,
                 "status": "Final",
+                "is_scheduled": False,
                 "home_team": {
                     "abbrev": home_team_info["abbrev"],
                     "name": home_team_info["name"],
                     "logo": home_team_info["logo"],
                     "score": home_score,
+                    "stats": home_stats,
                 },
                 "away_team": {
                     "abbrev": away_team_info["abbrev"],
                     "name": away_team_info["name"],
                     "logo": away_team_info["logo"],
                     "score": away_score,
+                    "stats": away_stats,
                 },
             }
             games.append(game)
@@ -298,11 +432,129 @@ def fetch_historical_games(date):
         return []
 
 
+def fetch_future_games(date):
+    """
+    Fetch scheduled games for a future date.
+
+    The nba_api has limited support for future games, so we try
+    scoreboardv2 first, then fall back gracefully.
+
+    Args:
+        date: datetime.date object (future date)
+
+    Returns:
+        List of game dictionaries for scheduled games
+    """
+    if not NBA_API_AVAILABLE:
+        return []
+
+    try:
+        # Format date for the API
+        date_str = date.strftime("%m/%d/%Y")
+
+        # Try using scoreboardv2 for the specific date
+        sb = scoreboardv2.ScoreboardV2(game_date=date_str)
+        dfs = sb.get_data_frames()
+
+        if not dfs or len(dfs) < 1:
+            return []
+
+        # GameHeader dataframe contains game info
+        game_header_df = dfs[0]
+
+        if game_header_df.empty:
+            return []
+
+        games = []
+
+        for _, row in game_header_df.iterrows():
+            home_team_id = row.get("HOME_TEAM_ID")
+            away_team_id = row.get("VISITOR_TEAM_ID")
+
+            # Get team abbreviations - we need to map from team IDs
+            # The row should have team city and name info
+            game_status_id = row.get("GAME_STATUS_ID", 1)
+            game_status_text = row.get("GAME_STATUS_TEXT", "Scheduled")
+
+            # Try to get team tricodes from the data
+            # ScoreboardV2 provides GAMECODE which contains date and team codes
+            gamecode = row.get("GAMECODE", "")
+
+            # Parse home/away from additional fields
+            home_abbrev = ""
+            away_abbrev = ""
+
+            # Try to find team abbrevs in the LineScore dataframe
+            if len(dfs) > 1:
+                line_score_df = dfs[1]
+                game_id = row.get("GAME_ID")
+                game_lines = line_score_df[line_score_df["GAME_ID"] == game_id] if "GAME_ID" in line_score_df.columns else line_score_df
+
+                if not game_lines.empty:
+                    for _, ls_row in game_lines.iterrows():
+                        team_abbrev = ls_row.get("TEAM_ABBREVIATION", "")
+                        team_id = ls_row.get("TEAM_ID")
+
+                        if team_id == home_team_id:
+                            home_abbrev = team_abbrev
+                        elif team_id == away_team_id:
+                            away_abbrev = team_abbrev
+
+            # If we still don't have abbreviations, try to derive from gamecode
+            if not home_abbrev or not away_abbrev:
+                # GAMECODE format is typically "YYYYMMDD/VVVHHH" where VVV=visitor, HHH=home
+                if "/" in gamecode and len(gamecode) >= 17:
+                    teams_part = gamecode.split("/")[1] if "/" in gamecode else ""
+                    if len(teams_part) >= 6:
+                        away_abbrev = away_abbrev or teams_part[:3]
+                        home_abbrev = home_abbrev or teams_part[3:6]
+
+            home_team_info = get_team_info(home_abbrev)
+            away_team_info = get_team_info(away_abbrev)
+
+            # Parse game time
+            game_time_str = row.get("GAME_DATE_EST", "")
+            status = "Scheduled"
+
+            if game_status_text:
+                # Use the status text which often includes the time
+                status = game_status_text
+
+            game = {
+                "id": row.get("GAME_ID", f"{date.isoformat()}-{away_abbrev}-{home_abbrev}"),
+                "date": date,
+                "status": status,
+                "is_scheduled": True,
+                "home_team": {
+                    "abbrev": home_team_info["abbrev"],
+                    "name": home_team_info["name"],
+                    "logo": home_team_info["logo"],
+                    "score": 0,
+                    "stats": None,
+                },
+                "away_team": {
+                    "abbrev": away_team_info["abbrev"],
+                    "name": away_team_info["name"],
+                    "logo": away_team_info["logo"],
+                    "score": 0,
+                    "stats": None,
+                },
+            }
+            games.append(game)
+
+        return games
+
+    except Exception as e:
+        # Future games may not be available - fail gracefully
+        return []
+
+
 @st.cache_data(ttl=60)  # Cache for 1 minute for live scores
 def fetch_games_for_date(date):
     """
     Fetches games for a specific date.
-    Uses live API for today, historical API for past dates.
+    Uses live API for today, historical API for past dates,
+    and scoreboardv2 for future dates.
 
     Args:
         date: datetime.date object
@@ -319,8 +571,8 @@ def fetch_games_for_date(date):
         # Use historical data for past games
         return fetch_historical_games(date)
     else:
-        # Future games - return empty (no reliable future game data)
-        return []
+        # Future games - try to fetch scheduled games
+        return fetch_future_games(date)
 
 
 def filter_games_by_teams(games, selected_teams):
@@ -365,6 +617,10 @@ def initialize_session_state():
     if "refresh_counter" not in st.session_state:
         st.session_state.refresh_counter = 0
 
+    # Last refresh timestamp
+    if "last_refresh" not in st.session_state:
+        st.session_state.last_refresh = datetime.now()
+
 
 def reset_to_today():
     """Resets the selected date to today."""
@@ -378,8 +634,16 @@ def trigger_refresh():
     This can be used to invalidate cached data.
     """
     st.session_state.refresh_counter += 1
+    st.session_state.last_refresh = datetime.now()
     # Clear the cache for fetch_games_for_date
     fetch_games_for_date.clear()
+
+
+def get_last_refresh_time():
+    """Returns the last refresh timestamp formatted as a time string."""
+    if "last_refresh" in st.session_state:
+        return st.session_state.last_refresh.strftime("%I:%M %p")
+    return datetime.now().strftime("%I:%M %p")
 
 
 def get_available_dates():
@@ -394,6 +658,25 @@ def get_available_dates():
         dates.append(today + timedelta(days=i))
 
     return dates
+
+
+def navigate_date(direction):
+    """
+    Navigate to the previous or next day.
+
+    Args:
+        direction: -1 for previous day, +1 for next day
+    """
+    today = datetime.now().date()
+    min_date = today - timedelta(days=7)
+    max_date = today + timedelta(days=7)
+
+    new_date = st.session_state.selected_date + timedelta(days=direction)
+
+    if min_date <= new_date <= max_date:
+        st.session_state.selected_date = new_date
+        return True
+    return False
 
 
 def get_games_with_filters():

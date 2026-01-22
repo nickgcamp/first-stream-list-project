@@ -1,18 +1,12 @@
 """
 Custom CSS Styles for NBA Scores Dashboard
-Dark mode theme with rounded card components
+iOS Dark Mode theme with rounded card components
 """
 
-# Color palette
-COLORS = {
-    "background": "#0E1117",
-    "card_bg": "#262730",
-    "card_border": "#3D3D3D",
-    "text_primary": "#FFFFFF",
-    "text_secondary": "#B0B0B0",
-    "accent": "#FF4B4B",
-    "winner_highlight": "#00D26A",
-}
+from constants import IOS_COLORS
+
+# Use iOS color palette
+COLORS = IOS_COLORS
 
 
 def get_main_styles():
@@ -29,11 +23,54 @@ def get_main_styles():
             background-color: {COLORS['card_bg']};
         }}
 
+        /* Hamburger menu styling - make it larger and more visible */
+        [data-testid="collapsedControl"] {{
+            width: 44px !important;
+            height: 44px !important;
+            top: 10px !important;
+            left: 10px !important;
+        }}
+
+        [data-testid="collapsedControl"] svg {{
+            width: 28px !important;
+            height: 28px !important;
+            stroke: {COLORS['text_primary']} !important;
+            stroke-width: 2.5px !important;
+        }}
+
+        [data-testid="collapsedControl"]:hover {{
+            background-color: {COLORS['surface_elevated']} !important;
+            border-radius: 8px;
+        }}
+
+        /* Custom hamburger icon styling */
+        button[kind="header"] {{
+            width: 44px !important;
+            height: 44px !important;
+        }}
+
+        /* Sidebar toggle button container */
+        [data-testid="stSidebarCollapseButton"] {{
+            width: 44px !important;
+            height: 44px !important;
+        }}
+
+        [data-testid="stSidebarCollapseButton"] button {{
+            width: 44px !important;
+            height: 44px !important;
+            padding: 8px !important;
+        }}
+
+        [data-testid="stSidebarCollapseButton"] svg {{
+            width: 28px !important;
+            height: 28px !important;
+        }}
+
         /* Header styling */
         .dashboard-header {{
             text-align: center;
-            padding: 20px 0;
-            margin-bottom: 30px;
+            padding: 20px 0 10px 0;
+            margin-bottom: 10px;
         }}
 
         .dashboard-header h1 {{
@@ -43,10 +80,70 @@ def get_main_styles():
             margin: 0;
         }}
 
-        .dashboard-header p {{
+        /* Navigation bar styling */
+        .nav-bar {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 15px 20px;
+            background-color: {COLORS['card_bg']};
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }}
+
+        .nav-arrow {{
+            background-color: {COLORS['surface_elevated']};
+            border: none;
+            border-radius: 10px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            color: {COLORS['carolina_blue']};
+            font-size: 1.3rem;
+            font-weight: bold;
+        }}
+
+        .nav-arrow:hover {{
+            background-color: {COLORS['carolina_blue']};
+            color: white;
+            transform: scale(1.05);
+        }}
+
+        .refresh-btn {{
+            background-color: {COLORS['surface_elevated']};
+            border: none;
+            border-radius: 12px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }}
+
+        .refresh-btn:hover {{
+            background-color: {COLORS['carolina_blue']};
+        }}
+
+        .refresh-btn:hover .refresh-text {{
+            color: white;
+        }}
+
+        .refresh-text {{
             color: {COLORS['text_secondary']};
-            font-size: 1rem;
-            margin-top: 5px;
+            font-size: 0.85rem;
+        }}
+
+        .date-display {{
+            color: {COLORS['text_primary']};
+            font-size: 1.1rem;
+            font-weight: 500;
         }}
 
         /* Scorecard container */
@@ -61,7 +158,7 @@ def get_main_styles():
 
         .scorecard:hover {{
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
         }}
 
         /* Game status badge */
@@ -80,7 +177,12 @@ def get_main_styles():
 
         .game-status.final {{
             color: {COLORS['winner_highlight']};
-            background-color: rgba(0, 210, 106, 0.15);
+            background-color: rgba(48, 209, 88, 0.15);
+        }}
+
+        .game-status.scheduled {{
+            color: {COLORS['carolina_blue']};
+            background-color: rgba(75, 156, 211, 0.15);
         }}
 
         /* Team row styling */
@@ -123,6 +225,27 @@ def get_main_styles():
             color: {COLORS['text_secondary']};
         }}
 
+        /* Team stats styling */
+        .team-stats {{
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px 12px;
+            margin-top: 8px;
+            padding: 8px 10px;
+            background-color: {COLORS['surface_elevated']};
+            border-radius: 8px;
+            font-size: 0.7rem;
+        }}
+
+        .stat-item {{
+            color: {COLORS['text_secondary']};
+        }}
+
+        .stat-label {{
+            color: {COLORS['carolina_blue']};
+            font-weight: 600;
+        }}
+
         /* Divider between teams */
         .team-divider {{
             height: 1px;
@@ -152,9 +275,9 @@ def get_main_styles():
         #MainMenu {{visibility: hidden;}}
         footer {{visibility: hidden;}}
 
-        /* Custom button styling */
+        /* Custom button styling - use Carolina Blue */
         .stButton > button {{
-            background-color: {COLORS['accent']};
+            background-color: {COLORS['carolina_blue']};
             color: white;
             border: none;
             border-radius: 8px;
@@ -164,10 +287,108 @@ def get_main_styles():
         }}
 
         .stButton > button:hover {{
-            background-color: #FF6B6B;
+            background-color: {COLORS['carolina_blue_light']};
+        }}
+
+        /* Date input styling */
+        .stDateInput > div > div > input {{
+            background-color: {COLORS['surface_elevated']};
+            color: {COLORS['text_primary']};
+            border-color: {COLORS['card_border']};
+        }}
+
+        /* Multiselect styling */
+        .stMultiSelect > div > div {{
+            background-color: {COLORS['surface_elevated']};
+            border-color: {COLORS['card_border']};
+        }}
+
+        /* Scheduled game time styling */
+        .game-time {{
+            color: {COLORS['carolina_blue']};
+            font-weight: 600;
         }}
     </style>
     """
+
+
+def format_stat(made, attempted, stat_type=""):
+    """
+    Format a stat line like FG: 35/80 (43.8%).
+
+    Args:
+        made: Made shots/attempts
+        attempted: Total attempts
+        stat_type: Type prefix (FG, 3PT, FT)
+
+    Returns:
+        Formatted stat string
+    """
+    if made is None or attempted is None:
+        return f"{stat_type}: - / - (-)"
+
+    try:
+        made = int(made)
+        attempted = int(attempted)
+        if attempted > 0:
+            pct = (made / attempted) * 100
+            return f"{stat_type}: {made}/{attempted} ({pct:.1f}%)"
+        else:
+            return f"{stat_type}: {made}/{attempted} (-)"
+    except (ValueError, TypeError):
+        return f"{stat_type}: - / - (-)"
+
+
+def format_simple_stat(value, stat_type):
+    """
+    Format a simple stat like AST: 25.
+
+    Args:
+        value: The stat value
+        stat_type: Type prefix (AST, REB, TO)
+
+    Returns:
+        Formatted stat string
+    """
+    if value is None:
+        return f"{stat_type}: -"
+    try:
+        return f"{stat_type}: {int(value)}"
+    except (ValueError, TypeError):
+        return f"{stat_type}: -"
+
+
+def render_team_stats_html(stats):
+    """
+    Renders the HTML for team stats in a compact grid.
+
+    Args:
+        stats: Dict with keys fg_made, fg_attempted, fg3_made, fg3_attempted,
+               ft_made, ft_attempted, ast, reb, to
+
+    Returns:
+        HTML string for stats grid
+    """
+    if not stats:
+        return ""
+
+    fg = format_stat(stats.get("fg_made"), stats.get("fg_attempted"), "FG")
+    fg3 = format_stat(stats.get("fg3_made"), stats.get("fg3_attempted"), "3PT")
+    ft = format_stat(stats.get("ft_made"), stats.get("ft_attempted"), "FT")
+    ast = format_simple_stat(stats.get("ast"), "AST")
+    reb = format_simple_stat(stats.get("reb"), "REB")
+    to = format_simple_stat(stats.get("to"), "TO")
+
+    html = f'<div class="team-stats">'
+    html += f'<span class="stat-item"><span class="stat-label">FG:</span> {fg.replace("FG: ", "")}</span>'
+    html += f'<span class="stat-item"><span class="stat-label">3PT:</span> {fg3.replace("3PT: ", "")}</span>'
+    html += f'<span class="stat-item"><span class="stat-label">FT:</span> {ft.replace("FT: ", "")}</span>'
+    html += f'<span class="stat-item"><span class="stat-label">AST:</span> {ast.replace("AST: ", "")}</span>'
+    html += f'<span class="stat-item"><span class="stat-label">REB:</span> {reb.replace("REB: ", "")}</span>'
+    html += f'<span class="stat-item"><span class="stat-label">TO:</span> {to.replace("TO: ", "")}</span>'
+    html += f'</div>'
+
+    return html
 
 
 def render_scorecard(game_data):
@@ -176,46 +397,91 @@ def render_scorecard(game_data):
 
     Args:
         game_data: dict with keys:
-            - home_team: dict with name, logo, score
-            - away_team: dict with name, logo, score
-            - status: str (e.g., "Final", "In Progress")
+            - home_team: dict with name, logo, score, stats (optional)
+            - away_team: dict with name, logo, score, stats (optional)
+            - status: str (e.g., "Final", "In Progress", "7:00 PM CT")
+            - is_scheduled: bool (optional) - True for future games
     """
     home = game_data["home_team"]
     away = game_data["away_team"]
     status = game_data["status"]
+    is_scheduled = game_data.get("is_scheduled", False)
 
-    # Determine winner
-    home_winner = home["score"] > away["score"]
-    away_winner = away["score"] > home["score"]
+    # Determine winner (only for completed games)
+    if not is_scheduled and home["score"] > 0 or away["score"] > 0:
+        home_winner = home["score"] > away["score"]
+        away_winner = away["score"] > home["score"]
+        home_score_class = "winner" if home_winner else "loser" if away_winner else ""
+        away_score_class = "winner" if away_winner else "loser" if home_winner else ""
+        home_score_display = home["score"]
+        away_score_display = away["score"]
+    else:
+        home_score_class = ""
+        away_score_class = ""
+        home_score_display = "-"
+        away_score_display = "-"
 
-    home_score_class = "winner" if home_winner else "loser" if away_winner else ""
-    away_score_class = "winner" if away_winner else "loser" if home_winner else ""
+    # Status class for badge styling
+    status_lower = status.lower()
+    if status_lower == "final":
+        status_class = "final"
+    elif is_scheduled or "scheduled" in status_lower or "pm" in status_lower or "am" in status_lower:
+        status_class = "scheduled"
+    else:
+        status_class = ""
 
-    status_class = "final" if status.lower() == "final" else ""
+    # Get team stats if available
+    home_stats_html = render_team_stats_html(home.get("stats"))
+    away_stats_html = render_team_stats_html(away.get("stats"))
 
     # Build HTML as single line to avoid Streamlit markdown parsing issues
     html = f'<div class="scorecard">'
     html += f'<div style="text-align: center;"><span class="game-status {status_class}">{status}</span></div>'
+
+    # Away team
     html += f'<div class="team-row"><div class="team-info">'
     html += f'<img class="team-logo" src="{away["logo"]}" alt="{away["name"]}">'
     html += f'<span class="team-name">{away["name"]}</span></div>'
-    html += f'<span class="team-score {away_score_class}">{away["score"]}</span></div>'
+    html += f'<span class="team-score {away_score_class}">{away_score_display}</span></div>'
+    html += away_stats_html
+
     html += f'<div class="team-divider"></div>'
+
+    # Home team
     html += f'<div class="team-row"><div class="team-info">'
     html += f'<img class="team-logo" src="{home["logo"]}" alt="{home["name"]}">'
     html += f'<span class="team-name">{home["name"]}</span></div>'
-    html += f'<span class="team-score {home_score_class}">{home["score"]}</span></div>'
+    html += f'<span class="team-score {home_score_class}">{home_score_display}</span></div>'
+    html += home_stats_html
+
     html += f'</div>'
 
     return html
 
 
-def render_header(date_str):
-    """Renders the dashboard header with the selected date."""
+def render_header(title="Nico's NBA Scores"):
+    """Renders the dashboard header."""
     return f"""
     <div class="dashboard-header">
-        <h1>NBA Scores</h1>
-        <p>{date_str}</p>
+        <h1>{title}</h1>
+    </div>
+    """
+
+
+def render_navigation_bar(date_str, last_updated):
+    """
+    Renders the navigation bar with date arrows and refresh button.
+
+    Args:
+        date_str: Current date string to display
+        last_updated: Last refresh timestamp string
+
+    Returns:
+        HTML string for the navigation bar
+    """
+    return f"""
+    <div class="nav-bar">
+        <div class="date-display">{date_str}</div>
     </div>
     """
 

@@ -6,12 +6,14 @@ A professional Streamlit dashboard for viewing NBA game scores
 import streamlit as st
 from datetime import datetime, timedelta
 
-from constants import get_all_team_names
+from constants import get_all_team_names, IOS_COLORS
 from data_manager import (
     initialize_session_state,
     reset_to_today,
     trigger_refresh,
     get_games_with_filters,
+    navigate_date,
+    get_last_refresh_time,
 )
 from style_utils import (
     get_main_styles,
@@ -22,7 +24,7 @@ from style_utils import (
 
 # Page configuration
 st.set_page_config(
-    page_title="NBA Scores Dashboard",
+    page_title="Nico's NBA Scores",
     page_icon="🏀",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -38,7 +40,7 @@ st.markdown(get_main_styles(), unsafe_allow_html=True)
 def render_sidebar():
     """Renders the sidebar with date picker, team filter, and controls."""
     with st.sidebar:
-        st.markdown("### 🏀 NBA Scores")
+        st.markdown("### 🏀 Nico's NBA Scores")
         st.markdown("---")
 
         # Date picker section
@@ -111,6 +113,45 @@ def render_sidebar():
             st.markdown("**Teams:** All")
 
 
+def render_navigation_bar():
+    """Renders the interactive navigation bar with date arrows and refresh button."""
+    # Get last refresh time
+    last_updated = get_last_refresh_time()
+    date_str = st.session_state.selected_date.strftime("%A, %B %d, %Y")
+
+    # Create three columns for navigation: prev arrow, center content, next arrow
+    col1, col2, col3, col4, col5 = st.columns([1, 1, 3, 1, 1])
+
+    with col1:
+        if st.button("←", key="prev_day", use_container_width=True):
+            if navigate_date(-1):
+                st.rerun()
+
+    with col2:
+        pass  # Spacer
+
+    with col3:
+        # Center: refresh button with timestamp
+        if st.button(f"🔄 Last updated: {last_updated}", key="refresh_nav", use_container_width=True):
+            trigger_refresh()
+            st.rerun()
+
+    with col4:
+        pass  # Spacer
+
+    with col5:
+        if st.button("→", key="next_day", use_container_width=True):
+            if navigate_date(+1):
+                st.rerun()
+
+    # Date display below nav buttons
+    st.markdown(
+        f'<p style="text-align: center; color: {IOS_COLORS["text_primary"]}; '
+        f'font-size: 1.1rem; font-weight: 500; margin: 10px 0 20px 0;">{date_str}</p>',
+        unsafe_allow_html=True,
+    )
+
+
 def render_games_grid(games):
     """
     Renders games in a responsive grid layout.
@@ -141,9 +182,11 @@ def main():
     render_sidebar()
 
     # Main content area
-    # Render header with selected date
-    date_str = st.session_state.selected_date.strftime("%A, %B %d, %Y")
-    st.markdown(render_header(date_str), unsafe_allow_html=True)
+    # Render header
+    st.markdown(render_header("Nico's NBA Scores"), unsafe_allow_html=True)
+
+    # Render navigation bar
+    render_navigation_bar()
 
     # Get filtered games
     games, total_count = get_games_with_filters()
@@ -151,7 +194,7 @@ def main():
     # Show filter status if filtering
     if st.session_state.selected_teams:
         st.markdown(
-            f"<p style='text-align: center; color: #B0B0B0; margin-bottom: 20px;'>"
+            f"<p style='text-align: center; color: {IOS_COLORS['text_secondary']}; margin-bottom: 20px;'>"
             f"Showing {len(games)} of {total_count} games</p>",
             unsafe_allow_html=True,
         )

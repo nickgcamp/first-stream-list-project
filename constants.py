@@ -6,6 +6,21 @@ Uses ESPN's logo CDN for reliable team logos
 # ESPN Logo CDN base URL
 ESPN_LOGO_BASE = "https://a.espncdn.com/i/teamlogos/nba/500"
 
+# iOS Dark Mode Color Palette
+IOS_COLORS = {
+    "background": "#1C1C1E",           # iOS dark grey background
+    "card_bg": "#2C2C2E",              # iOS elevated surface
+    "card_border": "#3A3A3C",          # iOS separator color
+    "text_primary": "#FFFFFF",          # Primary text
+    "text_secondary": "#8E8E93",        # iOS secondary label
+    "carolina_blue": "#4B9CD3",         # Accent - Carolina Blue
+    "carolina_blue_light": "#7BAFD4",   # Lighter Carolina Blue
+    "fire_red": "#CC0000",              # Accent - Fire Truck Red
+    "fire_red_light": "#E63946",        # Lighter Fire Red
+    "winner_highlight": "#30D158",      # iOS green
+    "surface_elevated": "#3A3A3C",      # Elevated surface
+}
+
 # NBA Teams with their abbreviations and full names
 NBA_TEAMS = {
     "ATL": {"name": "Atlanta Hawks", "logo": f"{ESPN_LOGO_BASE}/atl.png"},
