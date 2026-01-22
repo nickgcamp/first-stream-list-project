@@ -544,19 +544,37 @@ def get_main_styles():
         }}
 
         /* ============================================
-           STREAMLIT COLUMN ADJUSTMENTS FOR MOBILE
+           NAVIGATION BUTTONS - ALWAYS HORIZONTAL
            ============================================ */
-        @media (max-width: 768px) {{
-            [data-testid="column"] {{
-                width: 100% !important;
-                flex: 1 1 100% !important;
+        /* Keep navigation button rows horizontal on ALL screen sizes */
+        [data-testid="stHorizontalBlock"] {{
+            flex-wrap: nowrap !important;
+            gap: 8px;
+        }}
+
+        /* Make navigation buttons square-ish with equal sizing */
+        .stButton > button {{
+            min-width: 60px;
+            aspect-ratio: 1.2;
+        }}
+
+        /* Mobile adjustments for navigation spacing */
+        @media (max-width: 480px) {{
+            [data-testid="stHorizontalBlock"] {{
+                gap: 6px;
+            }}
+
+            /* Ensure columns don't expand to full width for nav buttons */
+            [data-testid="stHorizontalBlock"] > [data-testid="column"] {{
+                flex: 1 1 auto !important;
+                width: auto !important;
+                min-width: 0 !important;
             }}
         }}
 
-        /* Navigation bar columns stay inline on mobile but with adjusted spacing */
-        @media (max-width: 480px) {{
+        @media (max-width: 375px) {{
             [data-testid="stHorizontalBlock"] {{
-                gap: 0.3rem;
+                gap: 4px;
             }}
         }}
     </style>

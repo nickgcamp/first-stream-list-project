@@ -19,9 +19,9 @@ IOS_COLORS = {
     "fire_red_light": "#E63946",        # Lighter Fire Red
     "winner_highlight": "#30D158",      # iOS green
     "surface_elevated": "#3A3A3C",      # Elevated surface
-    "nav_button": "#2E5984",            # Navy/Carolina blue mix
-    "nav_button_hover": "#3D6B99",      # Lighter hover state
-    "nav_button_active": "#1E3D5C",     # Darker active state
+    "nav_button": "#00D4FF",            # Bright electric cyan / Miami blue
+    "nav_button_hover": "#33DFFF",      # Lighter hover state
+    "nav_button_active": "#00A8CC",     # Darker teal on press
 }
 
 # NBA Teams with their abbreviations and full names
